@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Enviar mensaje al bot</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+select { margin-bottom: 10px; width: 200px; }
+ul { margin-top: 10px; padding-left: 0; list-style: none; }
+li { margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+button { margin-left: 5px; }
+.total { margin-top: 15px; font-size: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h2>Selecciona tus productos</h2>
+
+<form id="formulario">
+
+    <!-- Selectores -->
+    <label>Opción 1:</label>
+    <select id="opcion1">
+        <option value="" disabled selected>Selecciona...</option>
+        <option value="Manzana" data-precio="2.5">Manzana - 2.5 Bs</option>
+        <option value="Banana" data-precio="1.8">Banana - 1.8 Bs</option>
+        <option value="Naranja" data-precio="3.0">Naranja - 3.0 Bs</option>
+    </select>
+    <button type="button" id="agregar1">Agregar</button>
+    <br>
+
+    <label>Opción 2:</label>
+    <select id="opcion2">
+        <option value="" disabled selected>Selecciona...</option>
+        <option value="Leche" data-precio="7.5">Leche - 7.5 Bs</option>
+        <option value="Agua" data-precio="5.0">Agua - 5.0 Bs</option>
+        <option value="Jugo" data-precio="6.0">Jugo - 6.0 Bs</option>
+    </select>
+    <button type="button" id="agregar2">Agregar</button>
+    <br>
+
+    <label>Opción 3:</label>
+    <select id="opcion3">
+        <option value="" disabled selected>Selecciona...</option>
+        <option value="Pan" data-precio="1.0">Pan - 1.0 Bs</option>
+        <option value="Galleta" data-precio="2.0">Galleta - 2.0 Bs</option>
+        <option value="Pastel" data-precio="12.0">Pastel - 12.0 Bs</option>
+    </select>
+    <button type="button" id="agregar3">Agregar</button>
+
+    <h3>Tu lista:</h3>
+    <ul id="listaSeleccion"></ul>
+
+    <p class="total">TOTAL: <span id="total">0</span> Bs</p>
+
+    <button type="submit">Enviar al bot</button>
+</form>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+let listaProductos = []; // {nombre, precio, cantidad}
+
+// Calcular total
+function calcularTotal() {
+    const total = listaProductos.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
+    document.getElementById("total").textContent = total.toFixed(2);
+}
+
+// Renderizar lista
+function renderLista() {
+    const lista = document.getElementById("listaSeleccion");
+    lista.innerHTML = "";
+
+    listaProductos.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${item.nombre} - ${item.precio} Bs x ${item.cantidad}
+        `;
+
+        const btnMas = document.createElement("button");
+        btnMas.textContent = "+";
+        btnMas.onclick = () => {
+            item.cantidad++;
+            renderLista();
+            calcularTotal();
+        };
+
+        const btnMenos = document.createElement("button");
+        btnMenos.textContent = "-";
+        btnMenos.onclick = () => {
+            if (item.cantidad > 1) item.cantidad--;
+            else listaProductos.splice(index, 1);
+            renderLista();
+            calcularTotal();
+        };
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.textContent = "Eliminar";
+        btnEliminar.onclick = () => {
+            listaProductos.splice(index, 1);
+            renderLista();
+            calcularTotal();
+        };
+
+        li.appendChild(btnMas);
+        li.appendChild(btnMenos);
+        li.appendChild(btnEliminar);
+
+        lista.appendChild(li);
+    });
+
+    calcularTotal();
+}
+
+// Agregar producto
+function agregarProducto(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select.value) return;
+
+    const nombre = select.value;
+    const precio = parseFloat(select.selectedOptions[0].dataset.precio);
+
+    const existing = listaProductos.find(p => p.nombre === nombre);
+
+    if (existing) {
+        existing.cantidad++;
+    } else {
+        listaProductos.push({ nombre, precio, cantidad: 1 });
+    }
+
+    renderLista();
+}
+
+// Botones de agregar
+document.getElementById("agregar1").onclick = () => agregarProducto("opcion1");
+document.getElementById("agregar2").onclick = () => agregarProducto("opcion2");
+document.getElementById("agregar3").onclick = () => agregarProducto("opcion3");
+
+// Enviar al bot
+document.getElementById("formulario").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (listaProductos.length === 0) return alert("Agrega al menos un producto.");
+
+    let mensaje = "🧾 *Tu pedido*\n\n";
+    listaProductos.forEach(p => {
+        mensaje += `• ${p.nombre} - ${p.cantidad} x ${p.precio} Bs = ${(p.cantidad * p.precio).toFixed(2)} Bs\n`;
+    });
+
+    mensaje += `\n💰 *TOTAL:* ${document.getElementById("total").textContent} Bs`;
+
+    try {
+        const resp = await fetch("/enviar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                mensaje: mensaje,
+                chat_id: tg.initDataUnsafe.user.id
+            })
+        });
+
+        await resp.text();
+        tg.close();
+
+    } catch (error) {
+        alert("Error enviando mensaje.");
+    }
+});
+</script>
+
+</body>
+</html>

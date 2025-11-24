@@ -1,0 +1,17 @@
+{
+    "sucursal1": {
+        "nombre": "Juana",
+        "lat": -18.3938,
+        "lon": -60.1568
+    },
+    "sucursal2": {
+        "nombre": "Ana Maria",
+        "lat": -19.4,
+        "lon": -76.15
+    },
+    "sucursal3": {
+        "nombre": "Carlos Alberto",
+        "lat": -10.39,
+        "lon": -69.16
+    }
+}

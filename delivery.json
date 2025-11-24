@@ -1,0 +1,20 @@
+{
+    "delivery1": {
+        "nombre": "Juan",
+        "lat": -17.3938,
+        "lon": -66.1568,
+        "disponible": true
+    },
+    "delivery2": {
+        "nombre": "Ana",
+        "lat": -17.4,
+        "lon": -66.15,
+        "disponible": true
+    },
+    "delivery3": {
+        "nombre": "Carlos",
+        "lat": -17.39,
+        "lon": -66.16,
+        "disponible": true
+    }
+}
