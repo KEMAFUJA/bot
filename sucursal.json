@@ -1,17 +1,17 @@
 {
     "sucursal1": {
-        "nombre": "Juana",
-        "lat": -18.3938,
-        "lon": -60.1568
+        "nombre": "MAKRO",
+        "lat": -17.76504138211577, 
+        "lon": -63.14748945738792
     },
     "sucursal2": {
-        "nombre": "Ana Maria",
-        "lat": -19.4,
-        "lon": -76.15
+        "nombre": "BRISAS",
+        "lat": -17.749242327462895,
+        "lon": -63.176444911999944
     },
     "sucursal3": {
-        "nombre": "Carlos Alberto",
-        "lat": -10.39,
-        "lon": -69.16
+        "nombre": "MALL VENTURA",
+        "lat": -17.754224051629933,
+        "lon": -63.199164665508135
     }
 }
